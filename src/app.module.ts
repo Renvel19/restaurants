@@ -7,6 +7,7 @@ import { PlateModule } from './plate/plate.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RestaurantEntity } from './restaurant/restaurant.entity/restaurant.entity';
 import { PlateEntity } from './plate/plate.entity/plate.entity';
+import { RestaurantPlateModule } from './restaurant-plate/restaurant-plate.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PlateEntity } from './plate/plate.entity/plate.entity';
       dropSchema: true,
       synchronize: true,
     }),
+    RestaurantPlateModule,
   ],
   controllers: [AppController],
   providers: [AppService],
