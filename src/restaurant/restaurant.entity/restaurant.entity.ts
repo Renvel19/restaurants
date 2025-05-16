@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { PlateEntity } from '../../plate/plate.entity/plate.entity';
+import { DishEntity } from '../../dish/dish.entity/dish.entity';
 import { CuisineType } from '../../shared/enums/cuisine_type';
 import {
   Column,
@@ -30,7 +30,7 @@ export class RestaurantEntity {
   })
   cuisine: CuisineType;
 
-  @ManyToMany(() => PlateEntity, (plate) => plate.restaurants)
+  @ManyToMany(() => DishEntity, (plate) => plate.restaurants)
   @JoinTable()
-  plates: PlateEntity[];
+  dishes: DishEntity[];
 }

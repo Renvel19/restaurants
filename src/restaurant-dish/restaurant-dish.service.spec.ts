@@ -1,15 +1,15 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
-import { RestaurantPlateService } from './restaurant-plate.service';
+import { RestaurantDishService } from './restaurant-dish.service';
 import { Repository } from 'typeorm';
 import { RestaurantEntity } from '../restaurant/restaurant.entity/restaurant.entity';
-import { PlateEntity } from '../plate/plate.entity/plate.entity';
+import { DishEntity } from '../dish/dish.entity/dish.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { faker } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { CuisineType } from '../shared/enums/cuisine_type';
-import { PlateCategory } from '../shared/enums/plate_category';
+import { DishCategory } from '../shared/enums/dish_category';
 
 const generateRestaurant = (): RestaurantEntity => ({
   id: uuidv4(),
@@ -17,30 +17,30 @@ const generateRestaurant = (): RestaurantEntity => ({
   address: faker.location.streetAddress(),
   web: faker.image.url(),
   cuisine: CuisineType.COLOMBIAN,
-  plates: [],
+  dishes: [],
 });
 
-const generatePlate = (): PlateEntity => ({
+const generateDish = (): DishEntity => ({
   id: uuidv4(),
   name: faker.food.dish(),
   description: faker.food.dish(),
   price: faker.number.int(),
-  category: PlateCategory.DESSERT,
+  category: DishCategory.DESSERT,
   restaurants: [],
 });
 
-describe('RestaurantPlateService', () => {
-  let service: RestaurantPlateService;
+describe('RestaurantDishService', () => {
+  let service: RestaurantDishService;
   let restaurantRepository: Repository<RestaurantEntity>;
-  let plateRepository: Repository<PlateEntity>;
+  let dishRepository: Repository<DishEntity>;
   let restaurant: RestaurantEntity;
-  let plate: PlateEntity;
-  let platesList: PlateEntity[];
+  let dish: DishEntity;
+  let dishesList: DishEntity[];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        RestaurantPlateService,
+        RestaurantDishService,
         {
           provide: getRepositoryToken(RestaurantEntity),
           useValue: {
@@ -49,7 +49,7 @@ describe('RestaurantPlateService', () => {
           },
         },
         {
-          provide: getRepositoryToken(PlateEntity),
+          provide: getRepositoryToken(DishEntity),
           useValue: {
             findOne: jest.fn(),
           },
@@ -57,16 +57,16 @@ describe('RestaurantPlateService', () => {
       ],
     }).compile();
 
-    service = module.get<RestaurantPlateService>(RestaurantPlateService);
+    service = module.get<RestaurantDishService>(RestaurantDishService);
     restaurantRepository = module.get<Repository<RestaurantEntity>>(
       getRepositoryToken(RestaurantEntity),
     );
-    plateRepository = module.get<Repository<PlateEntity>>(
-      getRepositoryToken(PlateEntity),
+    dishRepository = module.get<Repository<DishEntity>>(
+      getRepositoryToken(DishEntity),
     );
     restaurant = generateRestaurant();
-    plate = generatePlate();
-    platesList = [generatePlate(), generatePlate()];
+    dish = generateDish();
+    dishesList = [generateDish(), generateDish()];
   });
 
   it('should be defined', () => {
@@ -74,104 +74,104 @@ describe('RestaurantPlateService', () => {
   });
 
   describe('addDishToRestaurant', () => {
-    it('should add a plate to a restaurant', async () => {
-      const restaurantWithPlates = { ...restaurant, plates: [] };
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+    it('should add a dish to a restaurant', async () => {
+      const restaurantWithDishs = { ...restaurant, dishes: [] };
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest
         .spyOn(restaurantRepository, 'findOne')
-        .mockResolvedValue(restaurantWithPlates);
+        .mockResolvedValue(restaurantWithDishs);
       jest
         .spyOn(restaurantRepository, 'save')
-        .mockResolvedValue({ ...restaurantWithPlates, plates: [plate] });
+        .mockResolvedValue({ ...restaurantWithDishs, dishes: [dish] });
 
-      const result = await service.addDishToRestaurant(restaurant.id, plate.id);
-      expect(result.plates).toHaveLength(1);
-      expect(result.plates[0]).toEqual(plate);
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      const result = await service.addDishToRestaurant(restaurant.id, dish.id);
+      expect(result.dishes).toHaveLength(1);
+      expect(result.dishes[0]).toEqual(dish);
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
       expect(restaurantRepository.save).toHaveBeenCalledWith({
-        ...restaurantWithPlates,
-        plates: [plate],
+        ...restaurantWithDishs,
+        dishes: [dish],
       });
     });
 
-    it('should throw BusinessLogicException if plate not found', async () => {
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(null);
+    it('should throw BusinessLogicException if dish not found', async () => {
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
-        service.addDishToRestaurant(restaurant.id, plate.id),
+        service.addDishToRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).not.toHaveBeenCalled();
       expect(restaurantRepository.save).not.toHaveBeenCalled();
     });
 
     it('should throw BusinessLogicException if restaurant not found', async () => {
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
-        service.addDishToRestaurant(restaurant.id, plate.id),
+        service.addDishToRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
         'The restaurant with the given id was not found',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
       expect(restaurantRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should throw BusinessLogicException if the restaurant already has the plate', async () => {
-      const restaurantWithExistingPlate = { ...restaurant, plates: [plate] };
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+    it('should throw BusinessLogicException if the restaurant already has the dish', async () => {
+      const restaurantWithExistingDish = { ...restaurant, dishes: [dish] };
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest
         .spyOn(restaurantRepository, 'findOne')
-        .mockResolvedValue(restaurantWithExistingPlate);
+        .mockResolvedValue(restaurantWithExistingDish);
 
       await expect(
-        service.addDishToRestaurant(restaurant.id, plate.id),
+        service.addDishToRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
-        'The restaurant already has that plate registered.',
+        'The restaurant already has that dish registered.',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
       expect(restaurantRepository.save).not.toHaveBeenCalled();
     });
   });
 
   describe('findDishesFromRestaurant', () => {
-    it('should return all plates associated with a restaurant', async () => {
-      const restaurantWithPlates = { ...restaurant, plates: platesList };
+    it('should return all dishes associated with a restaurant', async () => {
+      const restaurantWithDishs = { ...restaurant, dishes: dishesList };
       jest
         .spyOn(restaurantRepository, 'findOne')
-        .mockResolvedValue(restaurantWithPlates);
+        .mockResolvedValue(restaurantWithDishs);
 
       const result = await service.findDishesFromRestaurant(restaurant.id);
-      expect(result).toEqual(platesList);
+      expect(result).toEqual(dishesList);
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     });
 
@@ -186,266 +186,258 @@ describe('RestaurantPlateService', () => {
       );
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     });
   });
 
   describe('findDishFromRestaurant', () => {
-    it('should return a specific plate associated with a restaurant', async () => {
-      const restaurantWithPlates = {
+    it('should return a specific dish associated with a restaurant', async () => {
+      const restaurantWithDishs = {
         ...restaurant,
-        plates: [plate, generatePlate()],
+        dishes: [dish, generateDish()],
       };
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest
         .spyOn(restaurantRepository, 'findOne')
-        .mockResolvedValue(restaurantWithPlates);
+        .mockResolvedValue(restaurantWithDishs);
 
       const result = await service.findDishFromRestaurant(
         restaurant.id,
-        plate.id,
+        dish.id,
       );
-      expect(result).toEqual(plate);
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(result).toEqual(dish);
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     });
 
-    it('should throw BusinessLogicException if plate not found', async () => {
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(null);
+    it('should throw BusinessLogicException if dish not found', async () => {
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
-        service.findDishFromRestaurant(restaurant.id, plate.id),
+        service.findDishFromRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).not.toHaveBeenCalled();
     });
 
     it('should throw BusinessLogicException if restaurant not found', async () => {
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
-        service.findDishFromRestaurant(restaurant.id, plate.id),
+        service.findDishFromRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
         'The restaurant with the given id was not found',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     });
 
-    it('should throw BusinessLogicException if the plate is not associated with the restaurant', async () => {
-      const restaurantWithOtherPlates = {
+    it('should throw BusinessLogicException if the dish is not associated with the restaurant', async () => {
+      const restaurantWithOtherDishs = {
         ...restaurant,
-        plates: [generatePlate()],
+        dishes: [generateDish()],
       };
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest
         .spyOn(restaurantRepository, 'findOne')
-        .mockResolvedValue(restaurantWithOtherPlates);
+        .mockResolvedValue(restaurantWithOtherDishs);
 
       await expect(
-        service.findDishFromRestaurant(restaurant.id, plate.id),
+        service.findDishFromRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
-        'The plate with the given id is not associated to the restaurant',
+        'The dish with the given id is not associated to the restaurant',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     });
   });
 
   describe('deleteDishFromRestaurant', () => {
-    it('should remove a plate from a restaurant', async () => {
-      const plateToDelete = generatePlate();
-      const restaurantWithPlateToDelete = {
+    it('should remove a dish from a restaurant', async () => {
+      const dishToDelete = generateDish();
+      const restaurantWithDishToDelete = {
         ...restaurant,
-        plates: [plate, plateToDelete],
+        dishes: [dish, dishToDelete],
       };
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest
         .spyOn(restaurantRepository, 'findOne')
-        .mockResolvedValue(restaurantWithPlateToDelete);
+        .mockResolvedValue(restaurantWithDishToDelete);
       jest.spyOn(restaurantRepository, 'save').mockResolvedValue({
         ...restaurant,
-        plates: [plateToDelete],
+        dishes: [dishToDelete],
       });
 
-      await service.deleteDishFromRestaurant(restaurant.id, plate.id);
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      await service.deleteDishFromRestaurant(restaurant.id, dish.id);
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
       expect(restaurantRepository.save).toHaveBeenCalledWith({
         ...restaurant,
-        plates: [plateToDelete],
+        dishes: [dishToDelete],
       });
     });
 
-    it('should throw BusinessLogicException if plate not found', async () => {
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(null);
+    it('should throw BusinessLogicException if dish not found', async () => {
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
-        service.deleteDishFromRestaurant(restaurant.id, plate.id),
+        service.deleteDishFromRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).not.toHaveBeenCalled();
       expect(restaurantRepository.save).not.toHaveBeenCalled();
     });
 
     it('should throw BusinessLogicException if restaurant not found', async () => {
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
-        service.deleteDishFromRestaurant(restaurant.id, plate.id),
+        service.deleteDishFromRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
         'The restaurant with the given id was not found',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
       expect(restaurantRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should throw BusinessLogicException if the plate is not associated with the restaurant', async () => {
-      const restaurantWithOtherPlates = {
+    it('should throw BusinessLogicException if the dish is not associated with the restaurant', async () => {
+      const restaurantWithOtherDishs = {
         ...restaurant,
-        plates: [generatePlate()],
+        dishes: [generateDish()],
       };
-      jest.spyOn(plateRepository, 'findOne').mockResolvedValue(plate);
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(dish);
       jest
         .spyOn(restaurantRepository, 'findOne')
-        .mockResolvedValue(restaurantWithOtherPlates);
+        .mockResolvedValue(restaurantWithOtherDishs);
 
       await expect(
-        service.deleteDishFromRestaurant(restaurant.id, plate.id),
+        service.deleteDishFromRestaurant(restaurant.id, dish.id),
       ).rejects.toHaveProperty(
         'message',
-        'The plate with the given id is not associated to the restaurant',
+        'The dish with the given id is not associated to the restaurant',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledWith({
-        where: { id: plate.id },
+      expect(dishRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dish.id },
       });
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
       expect(restaurantRepository.save).not.toHaveBeenCalled();
     });
   });
 
   describe('updateDishesFromRestaurant', () => {
-    it('should update the list of plates for a restaurant', async () => {
-      const newPlatesList = [generatePlate(), generatePlate()];
-      const restaurantWithExistingPlates = { ...restaurant, plates: [plate] };
+    it('should update the list of dishes for a restaurant', async () => {
+      const newDishsList = [generateDish(), generateDish()];
+      const restaurantWithExistingDishs = { ...restaurant, dishes: [dish] };
       jest
         .spyOn(restaurantRepository, 'findOne')
-        .mockResolvedValue(restaurantWithExistingPlates);
+        .mockResolvedValue(restaurantWithExistingDishs);
       jest
-        .spyOn(plateRepository, 'findOne')
-        .mockResolvedValueOnce(newPlatesList[0])
-        .mockResolvedValueOnce(newPlatesList[1]);
+        .spyOn(dishRepository, 'findOne')
+        .mockResolvedValueOnce(newDishsList[0])
+        .mockResolvedValueOnce(newDishsList[1]);
       jest
         .spyOn(restaurantRepository, 'save')
-        .mockResolvedValue({ ...restaurant, plates: newPlatesList });
+        .mockResolvedValue({ ...restaurant, dishes: newDishsList });
 
       await service.updateDishesFromRestaurant(
         restaurant.id,
-        newPlatesList.map((p) => p.id),
+        newDishsList.map((p) => p),
       );
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
-      expect(plateRepository.findOne).toHaveBeenCalledTimes(
-        newPlatesList.length,
-      );
+      expect(dishRepository.findOne).toHaveBeenCalledTimes(newDishsList.length);
       expect(restaurantRepository.save).toHaveBeenCalledWith({
         ...restaurant,
-        plates: newPlatesList,
+        dishes: newDishsList,
       });
     });
 
-    it('should throw BusinessLogicException if a plate in the list is not found', async () => {
-      const newPlatesList = [generatePlate(), generatePlate()];
+    it('should throw BusinessLogicException if a dish in the list is not found', async () => {
+      const newDishsList = [generateDish(), generateDish()];
       jest
-        .spyOn(plateRepository, 'findOne')
-        .mockResolvedValueOnce(newPlatesList[0])
+        .spyOn(dishRepository, 'findOne')
+        .mockResolvedValueOnce(newDishsList[0])
         .mockResolvedValueOnce(null);
 
       await expect(
         service.updateDishesFromRestaurant(
           restaurant.id,
-          newPlatesList.map((p) => p.id),
+          newDishsList.map((p) => p),
         ),
       ).rejects.toHaveProperty(
         'message',
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledTimes(
-        newPlatesList.length,
-      );
+      expect(dishRepository.findOne).toHaveBeenCalledTimes(newDishsList.length);
       expect(restaurantRepository.findOne).not.toHaveBeenCalled();
       expect(restaurantRepository.save).not.toHaveBeenCalled();
     });
 
     it('should throw BusinessLogicException if restaurant not found', async () => {
-      const newPlatesList = [generatePlate()];
-      jest
-        .spyOn(plateRepository, 'findOne')
-        .mockResolvedValue(newPlatesList[0]);
+      const newDishsList = [generateDish()];
+      jest.spyOn(dishRepository, 'findOne').mockResolvedValue(newDishsList[0]);
       jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
         service.updateDishesFromRestaurant(
           restaurant.id,
-          newPlatesList.map((p) => p.id),
+          newDishsList.map((p) => p),
         ),
       ).rejects.toHaveProperty(
         'message',
         'The restaurant with the given id was not found',
       );
-      expect(plateRepository.findOne).toHaveBeenCalledTimes(
-        newPlatesList.length,
-      );
+      expect(dishRepository.findOne).toHaveBeenCalledTimes(newDishsList.length);
       expect(restaurantRepository.findOne).toHaveBeenCalledWith({
         where: { id: restaurant.id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
       expect(restaurantRepository.save).not.toHaveBeenCalled();
     });

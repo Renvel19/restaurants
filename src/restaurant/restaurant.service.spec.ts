@@ -5,17 +5,17 @@ import { RestaurantService } from './restaurant.service';
 import { RestaurantEntity } from './restaurant.entity/restaurant.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { PlateEntity } from '../plate/plate.entity/plate.entity'; // Import PlateEntity
+import { DishEntity } from '../dish/dish.entity/dish.entity'; // Import DishEntity
 import { faker } from '@faker-js/faker';
 import { CuisineType } from '../shared/enums/cuisine_type';
 import { v4 as uuidv4 } from 'uuid';
-import { PlateCategory } from '../shared/enums/plate_category';
+import { DishCategory } from '../shared/enums/dish_category';
 
 describe('RestaurantService', () => {
   let service: RestaurantService;
   let repository: Repository<RestaurantEntity>;
   let restaurantEntities: RestaurantEntity[];
-  let plateEntities: PlateEntity[]; // Declare plateEntities
+  let dishEntities: DishEntity[]; // Declare dishEntities
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -41,7 +41,7 @@ describe('RestaurantService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       },
       {
         id: uuidv4(),
@@ -49,7 +49,7 @@ describe('RestaurantService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       },
       {
         id: uuidv4(),
@@ -57,18 +57,18 @@ describe('RestaurantService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       },
     ];
 
-    plateEntities = [
-      // Initialize plateEntities
+    dishEntities = [
+      // Initialize dishEntities
       {
         id: uuidv4(),
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       },
       {
@@ -76,7 +76,7 @@ describe('RestaurantService', () => {
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       },
       {
@@ -84,14 +84,14 @@ describe('RestaurantService', () => {
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       },
     ];
 
-    // Assign plates to restaurants
-    restaurantEntities[0].plates = [plateEntities[0], plateEntities[1]];
-    restaurantEntities[1].plates = [plateEntities[2]];
+    // Assign dishes to restaurants
+    restaurantEntities[0].dishes = [dishEntities[0], dishEntities[1]];
+    restaurantEntities[1].dishes = [dishEntities[2]];
 
     repository.find = jest.fn().mockResolvedValue(restaurantEntities);
     repository.findOne = jest.fn().mockResolvedValue(restaurantEntities[0]);
@@ -104,20 +104,20 @@ describe('RestaurantService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all restaurants with plates', async () => {
+    it('should return all restaurants with dishes', async () => {
       const restaurants = await service.findAll();
       expect(restaurants).toEqual(restaurantEntities);
-      expect(repository.find).toHaveBeenCalledWith({ relations: ['plates'] });
+      expect(repository.find).toHaveBeenCalledWith({ relations: ['dishes'] });
     });
   });
 
   describe('findOne', () => {
-    it('should return a restaurant with plates if it exists', async () => {
+    it('should return a restaurant with dishes if it exists', async () => {
       const restaurant = await service.findOne(restaurantEntities[0].id);
       expect(restaurant).toEqual(restaurantEntities[0]);
       expect(repository.findOne).toHaveBeenCalledWith({
         where: { id: restaurantEntities[0].id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     });
 
@@ -138,7 +138,7 @@ describe('RestaurantService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       };
       (repository.save as jest.Mock).mockResolvedValue(newRestaurant);
 
@@ -156,7 +156,7 @@ describe('RestaurantService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       };
 
       const updatedRestaurant: RestaurantEntity = {
@@ -188,7 +188,7 @@ describe('RestaurantService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       };
       await expect(
         service.update(uuidv4(), updatedRestaurantData),

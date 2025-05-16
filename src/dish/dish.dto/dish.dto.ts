@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { PlateCategory } from 'src/shared/enums/plate_category';
-export class PlateDto {
+import { DishCategory } from 'src/shared/enums/dish_category';
+export class DishDto {
   @IsString()
   @IsNotEmpty()
   readonly name: string;
@@ -15,7 +15,7 @@ export class PlateDto {
   @IsNotEmpty()
   readonly price: number;
 
-  @IsEnum(PlateCategory)
+  @IsEnum(DishCategory)
   @IsNotEmpty()
-  readonly category: PlateCategory;
+  readonly category: DishCategory;
 }

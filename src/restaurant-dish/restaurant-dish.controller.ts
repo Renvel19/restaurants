@@ -15,67 +15,67 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { BusinessErrorsInterceptor } from 'src/shared/interceptors/business-errors/business-errors.interceptor';
-import { RestaurantPlateService } from './restaurant-plate.service';
-import { PlateDto } from 'src/plate/plate.dto/plate.dto';
-import { PlateEntity } from 'src/plate/plate.entity/plate.entity';
+import { RestaurantDishService } from './restaurant-dish.service';
+import { DishDto } from 'src/dish/dish.dto/dish.dto';
+import { DishEntity } from 'src/dish/dish.entity/dish.entity';
 
 @Controller('restaurants')
 @UseInterceptors(BusinessErrorsInterceptor)
-export class RestaurantPlateController {
+export class RestaurantDishController {
   constructor(
-    private readonly restaurantArtworkService: RestaurantPlateService,
+    private readonly restaurantArtworkService: RestaurantDishService,
   ) {}
 
-  @Post(':restaurantId/plates/:plateId')
+  @Post(':restaurantId/dishes/:dishId')
   async addArtworkMuseum(
     @Param('restaurantId') restaurantId: string,
-    @Param('plateId') plateId: string,
+    @Param('dishId') dishId: string,
   ) {
     return await this.restaurantArtworkService.addDishToRestaurant(
       restaurantId,
-      plateId,
+      dishId,
     );
   }
 
-  @Get(':restaurantId/plates/:plateId')
+  @Get(':restaurantId/dishes/:dishId')
   async findArtworkByMuseumIdArtworkId(
     @Param('restaurantId') restaurantId: string,
-    @Param('plateId') plateId: string,
+    @Param('dishId') dishId: string,
   ) {
     return await this.restaurantArtworkService.findDishFromRestaurant(
       restaurantId,
-      plateId,
+      dishId,
     );
   }
 
-  @Get(':restaurantId/plate')
+  @Get(':restaurantId/dish')
   async findArtworksByMuseumId(@Param('restaurantId') restaurantId: string) {
     return await this.restaurantArtworkService.findDishesFromRestaurant(
       restaurantId,
     );
   }
 
-  @Put(':restaurantId/plates')
+  @Put(':restaurantId/dishes')
   async associateArtworksMuseum(
-    @Body() platesDto: PlateDto[],
+    @Body() dishesDto: DishDto[],
     @Param('restaurantId') restaurantId: string,
   ) {
-    const plates = plainToInstance(PlateEntity, platesDto);
+    const dishes = plainToInstance(DishEntity, dishesDto);
     return await this.restaurantArtworkService.updateDishesFromRestaurant(
       restaurantId,
-      plates,
+      dishes,
     );
   }
 
-  @Delete(':restaurantId/plates/:plateId')
+  @Delete(':restaurantId/dishes/:dishId')
   @HttpCode(204)
   async deleteArtworkMuseum(
     @Param('restaurantId') restaurantId: string,
-    @Param('plateId') plateId: string,
+    @Param('dishId') dishId: string,
   ) {
     return await this.restaurantArtworkService.deleteDishFromRestaurant(
       restaurantId,
-      plateId,
+      dishId,
     );
   }
 }

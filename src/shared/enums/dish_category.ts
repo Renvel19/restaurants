@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-export enum PlateCategory {
+export enum DishCategory {
   STARTER = 'entrada',
   MAIN = 'Plato fuerte',
   DESSERT = 'Postre',

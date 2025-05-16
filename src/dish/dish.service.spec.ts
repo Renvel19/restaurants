@@ -4,36 +4,36 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
-import { PlateService } from './plate.service';
-import { PlateEntity } from './plate.entity/plate.entity';
+import { DishService } from './dish.service';
+import { DishEntity } from './dish.entity/dish.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { faker } from '@faker-js/faker';
 import { CuisineType } from '../shared/enums/cuisine_type';
 import { v4 as uuidv4 } from 'uuid';
 import { RestaurantEntity } from '../restaurant/restaurant.entity/restaurant.entity';
-import { PlateCategory } from '../shared/enums/plate_category';
+import { DishCategory } from '../shared/enums/dish_category';
 
-describe('PlateService', () => {
-  let service: PlateService;
-  let repository: Repository<PlateEntity>;
-  let plateEntities: PlateEntity[];
+describe('DishService', () => {
+  let service: DishService;
+  let repository: Repository<DishEntity>;
+  let dishEntities: DishEntity[];
   let restaurantEntities: RestaurantEntity[];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        PlateService,
+        DishService,
         {
-          provide: getRepositoryToken(PlateEntity),
+          provide: getRepositoryToken(DishEntity),
           useClass: Repository,
         },
       ],
     }).compile();
 
-    service = module.get<PlateService>(PlateService);
-    repository = module.get<Repository<PlateEntity>>(
-      getRepositoryToken(PlateEntity),
+    service = module.get<DishService>(DishService);
+    repository = module.get<Repository<DishEntity>>(
+      getRepositoryToken(DishEntity),
     );
 
     // Initialize mock data
@@ -44,7 +44,7 @@ describe('PlateService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       },
       {
         id: uuidv4(),
@@ -52,7 +52,7 @@ describe('PlateService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       },
       {
         id: uuidv4(),
@@ -60,18 +60,18 @@ describe('PlateService', () => {
         address: faker.location.streetAddress(),
         web: faker.image.url(),
         cuisine: CuisineType.COLOMBIAN,
-        plates: [],
+        dishes: [],
       },
     ];
 
-    plateEntities = [
-      // Initialize plateEntities
+    dishEntities = [
+      // Initialize dishEntities
       {
         id: uuidv4(),
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       },
       {
@@ -79,7 +79,7 @@ describe('PlateService', () => {
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       },
       {
@@ -87,18 +87,18 @@ describe('PlateService', () => {
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       },
     ];
 
-    // Assign plates to restaurants
-    restaurantEntities[0].plates = [plateEntities[0], plateEntities[1]];
-    restaurantEntities[1].plates = [plateEntities[2]];
+    // Assign dishes to restaurants
+    restaurantEntities[0].dishes = [dishEntities[0], dishEntities[1]];
+    restaurantEntities[1].dishes = [dishEntities[2]];
 
-    repository.find = jest.fn().mockResolvedValue(plateEntities);
-    repository.findOne = jest.fn().mockResolvedValue(plateEntities[0]);
-    repository.save = jest.fn().mockResolvedValue(plateEntities[0]);
+    repository.find = jest.fn().mockResolvedValue(dishEntities);
+    repository.findOne = jest.fn().mockResolvedValue(dishEntities[0]);
+    repository.save = jest.fn().mockResolvedValue(dishEntities[0]);
     repository.remove = jest.fn().mockResolvedValue(undefined);
   });
 
@@ -107,9 +107,9 @@ describe('PlateService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all plates with restaurants', async () => {
-      const plates = await service.findAll();
-      expect(plates).toEqual(plateEntities);
+    it('should return all dishes with restaurants', async () => {
+      const dishes = await service.findAll();
+      expect(dishes).toEqual(dishEntities);
       expect(repository.find).toHaveBeenCalledWith({
         relations: ['restaurants'],
       });
@@ -117,106 +117,103 @@ describe('PlateService', () => {
   });
 
   describe('findOne', () => {
-    it('should return a plate with its restaurant if it exists', async () => {
-      const plate = await service.findOne(plateEntities[0].id);
-      expect(plate).toEqual(plateEntities[0]);
+    it('should return a dish with its restaurant if it exists', async () => {
+      const dish = await service.findOne(dishEntities[0].id);
+      expect(dish).toEqual(dishEntities[0]);
       expect(repository.findOne).toHaveBeenCalledWith({
-        where: { id: plateEntities[0].id },
+        where: { id: dishEntities[0].id },
         relations: ['restaurants'],
       });
     });
 
-    it('should throw BusinessLogicException if plate does not exist', async () => {
+    it('should throw BusinessLogicException if dish does not exist', async () => {
       (repository.findOne as jest.Mock).mockResolvedValue(null);
       await expect(service.findOne('non-existent-id')).rejects.toHaveProperty(
         'message',
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
       );
     });
   });
 
   describe('create', () => {
-    it('should create a new plate', async () => {
-      const newPlate = {
+    it('should create a new dish', async () => {
+      const newDish = {
         id: uuidv4(),
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       };
-      (repository.save as jest.Mock).mockResolvedValue(newPlate);
+      (repository.save as jest.Mock).mockResolvedValue(newDish);
 
-      const createdPlate = await service.create(newPlate);
-      expect(createdPlate).toEqual(newPlate);
-      expect(repository.save).toHaveBeenCalledWith(newPlate);
+      const createdDish = await service.create(newDish);
+      expect(createdDish).toEqual(newDish);
+      expect(repository.save).toHaveBeenCalledWith(newDish);
     });
   });
 
   describe('update', () => {
-    it('should update an existing plate', async () => {
-      const updatedPlateData = {
-        id: plateEntities[0].id,
+    it('should update an existing dish', async () => {
+      const updatedDishData = {
+        id: dishEntities[0].id,
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       };
 
-      const updatedPlate: PlateEntity = {
-        ...plateEntities[0],
-        ...updatedPlateData,
+      const updatedDish: DishEntity = {
+        ...dishEntities[0],
+        ...updatedDishData,
       };
 
-      (repository.findOne as jest.Mock).mockResolvedValue(plateEntities[0]);
-      (repository.save as jest.Mock).mockResolvedValue(updatedPlate);
+      (repository.findOne as jest.Mock).mockResolvedValue(dishEntities[0]);
+      (repository.save as jest.Mock).mockResolvedValue(updatedDish);
 
-      const result = await service.update(
-        plateEntities[0].id,
-        updatedPlateData,
-      );
-      expect(result).toEqual(updatedPlate);
+      const result = await service.update(dishEntities[0].id, updatedDishData);
+      expect(result).toEqual(updatedDish);
       expect(repository.findOne).toHaveBeenCalledWith({
-        where: { id: plateEntities[0].id },
+        where: { id: dishEntities[0].id },
       });
-      expect(repository.save).toHaveBeenCalledWith(updatedPlate);
+      expect(repository.save).toHaveBeenCalledWith(updatedDish);
     });
 
-    it('should throw BusinessLogicException if plate to update does not exist', async () => {
+    it('should throw BusinessLogicException if dish to update does not exist', async () => {
       (repository.findOne as jest.Mock).mockResolvedValue(null);
-      const updatedPlateData = {
+      const updatedDishData = {
         id: uuidv4(),
         name: faker.food.dish(),
         description: faker.food.dish(),
         price: faker.number.int(),
-        category: PlateCategory.DESSERT,
+        category: DishCategory.DESSERT,
         restaurants: [restaurantEntities[0]],
       };
       await expect(
-        service.update('non-existent-id', updatedPlateData),
+        service.update('non-existent-id', updatedDishData),
       ).rejects.toHaveProperty(
         'message',
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
       );
     });
   });
 
   describe('delete', () => {
-    it('should delete an existing plate', async () => {
-      (repository.findOne as jest.Mock).mockResolvedValue(plateEntities[0]);
-      await service.delete(plateEntities[0].id);
+    it('should delete an existing dish', async () => {
+      (repository.findOne as jest.Mock).mockResolvedValue(dishEntities[0]);
+      await service.delete(dishEntities[0].id);
       expect(repository.findOne).toHaveBeenCalledWith({
-        where: { id: plateEntities[0].id },
+        where: { id: dishEntities[0].id },
       });
-      expect(repository.remove).toHaveBeenCalledWith(plateEntities[0]);
+      expect(repository.remove).toHaveBeenCalledWith(dishEntities[0]);
     });
 
-    it('should throw BusinessLogicException if plate to delete does not exist', async () => {
+    it('should throw BusinessLogicException if dish to delete does not exist', async () => {
       (repository.findOne as jest.Mock).mockResolvedValue(null);
       await expect(service.delete('non-existent-id')).rejects.toHaveProperty(
         'message',
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
       );
     });
   });

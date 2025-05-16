@@ -1,41 +1,41 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PlateEntity } from '../plate/plate.entity/plate.entity';
 import { RestaurantEntity } from '../restaurant/restaurant.entity/restaurant.entity';
 import { Repository } from 'typeorm';
 import {
   BusinessError,
   BusinessLogicException,
 } from '../shared/errors/business_errors';
+import { DishEntity } from '../dish/dish.entity/dish.entity';
 
 @Injectable()
-export class RestaurantPlateService {
+export class RestaurantDishService {
   constructor(
     @InjectRepository(RestaurantEntity)
     private readonly restaurantRepository: Repository<RestaurantEntity>,
 
-    @InjectRepository(PlateEntity)
-    private readonly plateRepository: Repository<PlateEntity>,
+    @InjectRepository(DishEntity)
+    private readonly dishRepository: Repository<DishEntity>,
   ) {}
 
   async addDishToRestaurant(
     restaurantId: string,
-    plateId: string,
+    dishId: string,
   ): Promise<RestaurantEntity> {
-    const plate: PlateEntity | null = await this.plateRepository.findOne({
-      where: { id: plateId },
+    const dish: DishEntity | null = await this.dishRepository.findOne({
+      where: { id: dishId },
     });
-    if (!plate)
+    if (!dish)
       throw new BusinessLogicException(
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
         BusinessError.NOT_FOUND,
       );
 
     const restaurant: RestaurantEntity | null =
       await this.restaurantRepository.findOne({
         where: { id: restaurantId },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     if (!restaurant)
       throw new BusinessLogicException(
@@ -43,22 +43,22 @@ export class RestaurantPlateService {
         BusinessError.NOT_FOUND,
       );
 
-    if (restaurant.plates.includes(plate)) {
+    if (restaurant.dishes.includes(dish)) {
       throw new BusinessLogicException(
-        'The restaurant already has that plate registered.',
+        'The restaurant already has that dish registered.',
         BusinessError.PRECONDITION_FAILED,
       );
     }
 
-    restaurant.plates = [...restaurant.plates, plate];
+    restaurant.dishes = [...restaurant.dishes, dish];
     return await this.restaurantRepository.save(restaurant);
   }
 
-  async findDishesFromRestaurant(restaurantId: string): Promise<PlateEntity[]> {
+  async findDishesFromRestaurant(restaurantId: string): Promise<DishEntity[]> {
     const restaurant: RestaurantEntity | null =
       await this.restaurantRepository.findOne({
         where: { id: restaurantId },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     if (!restaurant)
       throw new BusinessLogicException(
@@ -66,26 +66,26 @@ export class RestaurantPlateService {
         BusinessError.NOT_FOUND,
       );
 
-    return restaurant.plates;
+    return restaurant.dishes;
   }
 
   async findDishFromRestaurant(
     restaurantId: string,
-    plateId: string,
-  ): Promise<PlateEntity> {
-    const plate: PlateEntity | null = await this.plateRepository.findOne({
-      where: { id: plateId },
+    dishId: string,
+  ): Promise<DishEntity> {
+    const dish: DishEntity | null = await this.dishRepository.findOne({
+      where: { id: dishId },
     });
-    if (!plate)
+    if (!dish)
       throw new BusinessLogicException(
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
         BusinessError.NOT_FOUND,
       );
 
     const restaurant: RestaurantEntity | null =
       await this.restaurantRepository.findOne({
         where: { id: restaurantId },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     if (!restaurant)
       throw new BusinessLogicException(
@@ -93,33 +93,33 @@ export class RestaurantPlateService {
         BusinessError.NOT_FOUND,
       );
 
-    const restaurantArtwork: PlateEntity | undefined = restaurant.plates.find(
-      (e) => e.id === plate.id,
+    const restaurantArtwork: DishEntity | undefined = restaurant.dishes.find(
+      (e) => e.id === dish.id,
     );
 
     if (!restaurantArtwork)
       throw new BusinessLogicException(
-        'The plate with the given id is not associated to the restaurant',
+        'The dish with the given id is not associated to the restaurant',
         BusinessError.PRECONDITION_FAILED,
       );
 
     return restaurantArtwork;
   }
 
-  async deleteDishFromRestaurant(restaurantId: string, plateId: string) {
-    const plate: PlateEntity | null = await this.plateRepository.findOne({
-      where: { id: plateId },
+  async deleteDishFromRestaurant(restaurantId: string, dishId: string) {
+    const dish: DishEntity | null = await this.dishRepository.findOne({
+      where: { id: dishId },
     });
-    if (!plate)
+    if (!dish)
       throw new BusinessLogicException(
-        'The plate with the given id was not found',
+        'The dish with the given id was not found',
         BusinessError.NOT_FOUND,
       );
 
     const restaurant: RestaurantEntity | null =
       await this.restaurantRepository.findOne({
         where: { id: restaurantId },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     if (!restaurant)
       throw new BusinessLogicException(
@@ -127,31 +127,28 @@ export class RestaurantPlateService {
         BusinessError.NOT_FOUND,
       );
 
-    const restaurantArtwork: PlateEntity | undefined = restaurant.plates.find(
-      (e) => e.id === plate.id,
+    const restaurantArtwork: DishEntity | undefined = restaurant.dishes.find(
+      (e) => e.id === dish.id,
     );
 
     if (!restaurantArtwork)
       throw new BusinessLogicException(
-        'The plate with the given id is not associated to the restaurant',
+        'The dish with the given id is not associated to the restaurant',
         BusinessError.PRECONDITION_FAILED,
       );
 
-    restaurant.plates = restaurant.plates.filter((e) => e.id !== plateId);
+    restaurant.dishes = restaurant.dishes.filter((e) => e.id !== dishId);
     await this.restaurantRepository.save(restaurant);
   }
 
-  async updateDishesFromRestaurant(
-    restaurantId: string,
-    plates: PlateEntity[],
-  ) {
-    for (const p of plates) {
-      const plate: PlateEntity | null = await this.plateRepository.findOne({
+  async updateDishesFromRestaurant(restaurantId: string, dishes: DishEntity[]) {
+    for (const p of dishes) {
+      const dish: DishEntity | null = await this.dishRepository.findOne({
         where: { id: p.id },
       });
-      if (!plate)
+      if (!dish)
         throw new BusinessLogicException(
-          'The plate with the given id was not found',
+          'The dish with the given id was not found',
           BusinessError.NOT_FOUND,
         );
     }
@@ -159,7 +156,7 @@ export class RestaurantPlateService {
     const restaurant: RestaurantEntity | null =
       await this.restaurantRepository.findOne({
         where: { id: restaurantId },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     if (!restaurant)
       throw new BusinessLogicException(
@@ -167,7 +164,7 @@ export class RestaurantPlateService {
         BusinessError.NOT_FOUND,
       );
 
-    restaurant.plates = plates;
+    restaurant.dishes = dishes;
     await this.restaurantRepository.save(restaurant);
   }
 }

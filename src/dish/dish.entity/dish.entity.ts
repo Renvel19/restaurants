@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { RestaurantEntity } from '../../restaurant/restaurant.entity/restaurant.entity';
-import { PlateCategory } from '../../shared/enums/plate_category';
+import { DishCategory } from '../../shared/enums/dish_category';
 import {
   Column,
   Entity,
@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class PlateEntity {
+export class DishEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -25,12 +25,12 @@ export class PlateEntity {
 
   @Column({
     type: 'enum',
-    enum: PlateCategory,
-    default: PlateCategory.MAIN,
+    enum: DishCategory,
+    default: DishCategory.MAIN,
   })
-  category: PlateCategory;
+  category: DishCategory;
 
-  @ManyToMany(() => RestaurantEntity, (restaurant) => restaurant.plates)
+  @ManyToMany(() => RestaurantEntity, (restaurant) => restaurant.dishes)
   @JoinTable()
   restaurants: RestaurantEntity[];
 }

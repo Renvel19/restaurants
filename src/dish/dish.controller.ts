@@ -14,14 +14,14 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { BusinessErrorsInterceptor } from 'src/shared/interceptors/business-errors/business-errors.interceptor';
-import { PlateService } from './plate.service';
-import { PlateDto } from './plate.dto/plate.dto';
-import { PlateEntity } from './plate.entity/plate.entity';
+import { DishService } from './dish.service';
+import { DishDto } from './dish.dto/dish.dto';
+import { DishEntity } from './dish.entity/dish.entity';
 
-@Controller('plate')
+@Controller('dish')
 @UseInterceptors(BusinessErrorsInterceptor)
-export class PlateController {
-  constructor(private readonly plateService: PlateService) {}
+export class DishController {
+  constructor(private readonly plateService: DishService) {}
 
   @Get()
   async findAll() {
@@ -34,14 +34,14 @@ export class PlateController {
   }
 
   @Post()
-  async create(@Body() plateDto: PlateDto) {
-    const plate: PlateEntity = plainToInstance(PlateEntity, plateDto);
+  async create(@Body() plateDto: DishDto) {
+    const plate: DishEntity = plainToInstance(DishEntity, plateDto);
     return await this.plateService.create(plate);
   }
 
   @Put(':plateId')
-  async update(@Param('plateId') plateId: string, @Body() plateDto: PlateDto) {
-    const plate: PlateEntity = plainToInstance(PlateEntity, plateDto);
+  async update(@Param('plateId') plateId: string, @Body() plateDto: DishDto) {
+    const plate: DishEntity = plainToInstance(DishEntity, plateDto);
     return await this.plateService.update(plateId, plate);
   }
 

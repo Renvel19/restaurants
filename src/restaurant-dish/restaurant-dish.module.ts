@@ -1,14 +1,14 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
-import { RestaurantPlateService } from './restaurant-plate.service';
+import { RestaurantDishService } from './restaurant-dish.service';
 import { RestaurantEntity } from 'src/restaurant/restaurant.entity/restaurant.entity';
-import { PlateEntity } from 'src/plate/plate.entity/plate.entity';
+import { DishEntity } from 'src/dish/dish.entity/dish.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RestaurantPlateController } from './restaurant-plate.controller';
+import { RestaurantDishController } from './restaurant-dish.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RestaurantEntity, PlateEntity])],
-  providers: [RestaurantPlateService],
-  controllers: [RestaurantPlateController],
+  imports: [TypeOrmModule.forFeature([RestaurantEntity, DishEntity])],
+  providers: [RestaurantDishService],
+  controllers: [RestaurantDishController],
 })
-export class RestaurantPlateModule {}
+export class RestaurantDishModule {}

@@ -16,14 +16,14 @@ export class RestaurantService {
   ) {}
 
   async findAll(): Promise<RestaurantEntity[]> {
-    return await this.restaurantRepository.find({ relations: ['plates'] });
+    return await this.restaurantRepository.find({ relations: ['dishes'] });
   }
 
   async findOne(id: string): Promise<RestaurantEntity> {
     const restaurant: RestaurantEntity | null =
       await this.restaurantRepository.findOne({
         where: { id },
-        relations: ['plates'],
+        relations: ['dishes'],
       });
     if (!restaurant)
       throw new BusinessLogicException(
