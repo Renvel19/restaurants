@@ -1,0 +1,404 @@
+{
+	"info": {
+		"_postman_id": "382994bc-528e-4a64-9b81-da2298294a2b",
+		"name": "Platos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43595496"
+	},
+	"item": [
+		{
+			"name": "Crear plato válido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()\r",
+							"pm.globals.set(\"id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"   pm.response.to.have.status(201);\r",
+							"});\r",
+							"const response = pm.response.json();\r",
+							"let dish_id = response.id;\r",
+							"\r",
+							"pm.globals.set(\"dish_id\", dish_id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Ajiaco\",\r\n  \"description\": \"El Ajiaco es rico\",\r\n  \"price\": 30000,\r\n  \"category\": \"Plato fuerte\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/dishes",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear un plato inválido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()\r",
+							"pm.globals.set(\"id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 400\", function () {\r",
+							"   pm.response.to.have.status(400);\r",
+							"});\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message.length).to.be.greaterThan(0);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Ajiaco\",\r\n  \"price\": 30000,\r\n  \"category\": \"Plato fuerte\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/dishes",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los platos.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Number of restaurants > 0', function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/dishes",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un platopor ID.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/dishes/{{dish_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes",
+						"{{dish_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un plato por un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The dish with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/dishes/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar un plato.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Ajiaco\",\r\n  \"description\": \"El Ajiaco es rico\",\r\n  \"price\": 30000,\r\n  \"category\": \"Plato fuerte\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/dishes/{{dish_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes",
+						"{{dish_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar un plato con un ID que no existe.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The dish with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Ajiaco\",\r\n  \"description\": \"El Ajiaco es rico\",\r\n  \"price\": 30000,\r\n  \"category\": \"Plato fuerte\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/dishes/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un restaurante con un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The dish with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/dishes/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un plato por su ID.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"  pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has no content\", function () {\r",
+							"  pm.expect(pm.response.text()).to.eql(\"\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/dishes/{{dish_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes",
+						"{{dish_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "localhost:3000/api/v1",
+			"type": "string"
+		}
+	]
+}

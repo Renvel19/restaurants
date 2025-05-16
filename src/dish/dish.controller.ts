@@ -18,7 +18,7 @@ import { DishService } from './dish.service';
 import { DishDto } from './dish.dto/dish.dto';
 import { DishEntity } from './dish.entity/dish.entity';
 
-@Controller('dish')
+@Controller('dishes')
 @UseInterceptors(BusinessErrorsInterceptor)
 export class DishController {
   constructor(private readonly plateService: DishService) {}

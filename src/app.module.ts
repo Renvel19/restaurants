@@ -21,7 +21,7 @@ import { RestaurantDishModule } from './restaurant-dish/restaurant-dish.module';
       password: '1q2w3e4r',
       database: 'restaurant',
       entities: [RestaurantEntity, DishEntity],
-      dropSchema: false,
+      dropSchema: true,
       synchronize: true,
     }),
     RestaurantDishModule,

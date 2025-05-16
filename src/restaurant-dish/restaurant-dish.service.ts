@@ -142,9 +142,27 @@ export class RestaurantDishService {
   }
 
   async updateDishesFromRestaurant(restaurantId: string, dishes: DishEntity[]) {
-    for (const p of dishes) {
+    const restaurant: RestaurantEntity | null =
+      await this.restaurantRepository.findOne({
+        where: { id: restaurantId },
+        relations: ['dishes'],
+      });
+
+    if (!restaurant)
+      throw new BusinessLogicException(
+        'The restaurant with the given id was not found',
+        BusinessError.NOT_FOUND,
+      );
+
+    for (let i = 0; i < dishes.length; i++) {
+      if (dishes[i].id == null) {
+        throw new BusinessLogicException(
+          'The dish with the given id was not found',
+          BusinessError.NOT_FOUND,
+        );
+      }
       const dish: DishEntity | null = await this.dishRepository.findOne({
-        where: { id: p.id },
+        where: { id: dishes[i].id },
       });
       if (!dish)
         throw new BusinessLogicException(
@@ -153,18 +171,7 @@ export class RestaurantDishService {
         );
     }
 
-    const restaurant: RestaurantEntity | null =
-      await this.restaurantRepository.findOne({
-        where: { id: restaurantId },
-        relations: ['dishes'],
-      });
-    if (!restaurant)
-      throw new BusinessLogicException(
-        'The restaurant with the given id was not found',
-        BusinessError.NOT_FOUND,
-      );
-
     restaurant.dishes = dishes;
-    await this.restaurantRepository.save(restaurant);
+    return await this.restaurantRepository.save(restaurant);
   }
 }

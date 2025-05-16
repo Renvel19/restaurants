@@ -1,0 +1,552 @@
+{
+	"info": {
+		"_postman_id": "cb43e247-a082-4335-8a7f-2037ebef6ba0",
+		"name": "Restaurantes-Platos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43595496"
+	},
+	"item": [
+		{
+			"name": "Crear restaurante válido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()\r",
+							"pm.globals.set(\"id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"   pm.response.to.have.status(201);\r",
+							"});\r",
+							"const response = pm.response.json();\r",
+							"let restaurant_id = response.id;\r",
+							"\r",
+							"pm.globals.set(\"restaurant_id\", restaurant_id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Buffalo Wings\",\r\n    \"address\": \"Calle 63 # 21 - 12\", \r\n    \"web\": \"https://www.bwcolombia.co/\", \r\n    \"cuisine\": \"Internacional\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/restaurants",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear plato válido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()\r",
+							"pm.globals.set(\"id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"   pm.response.to.have.status(201);\r",
+							"});\r",
+							"const response = pm.response.json();\r",
+							"let dish_id = response.id;\r",
+							"\r",
+							"pm.globals.set(\"dish_id\", dish_id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Ajiaco\",\r\n  \"description\": \"El Ajiaco es rico\",\r\n  \"price\": 30000,\r\n  \"category\": \"Plato fuerte\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/dishes",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Asociar un plato a un restaurante",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()\r",
+							"pm.globals.set(\"id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"   pm.response.to.have.status(201);\r",
+							"});\r",
+							"const response = pm.response.json();\r",
+							"let restaurant_id = response.id;\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}/dishes/{{dish_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}",
+						"dishes",
+						"{{dish_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Asociar un plato que no existe a un restaurante.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The dish with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"address\": \"Calle 63 # 21 - 12\", \r\n    \"web\": \"https://crepesywaffles.com/\", \r\n    \"cuisine\": \"Internacional\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}/dishes/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}",
+						"dishes",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los platos que están en un restaurante.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Number of dishes > 0', function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}/dish",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}",
+						"dish"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un plato asociado a un restaurante.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un plato que no esté asociado a un restaurante.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The dish with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}/dishes/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}",
+						"dishes",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear segundo plato válido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()\r",
+							"pm.globals.set(\"id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"   pm.response.to.have.status(201);\r",
+							"});\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.globals.set(\"update_dish_id\", response.id);\r",
+							"pm.globals.set(\"update_dish_name\", response.name);\r",
+							"pm.globals.set(\"update_dish_description\", response.description);\r",
+							"pm.globals.set(\"update_dish_price\", response.price);\r",
+							"pm.globals.set(\"update_dish_category\", response.category);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Cocada\",\r\n  \"description\": \"El Cocada es rica\",\r\n  \"price\": 20000,\r\n  \"category\": \"Postre\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/dishes",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"dishes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar los platos que están asociados a un restaurante.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();\r",
+							"pm.globals.set(\"restaurant_id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\r\n  \"id\": \"{{update_dish_id}}\",\r\n  \"name\":\"{{update_dish_name}}\",\r\n  \"description\": \"{{update_dish_description}}\",\r\n  \"price\": {{update_dish_price}},\r\n  \"category\": \"{{update_dish_category}}\"\r\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}/dishes",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}",
+						"dishes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar los platos asociados a un restaurante, con un plato inexistente.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The dish with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\r\n  \"name\": \"Aguacate\",\r\n  \"description\": \"El Aguacate es rico\",\r\n  \"price\": 20000,\r\n  \"category\": \"Entrada\"\r\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}/dishes",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}",
+						"dishes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un plato previamente asociado a un restaurante.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"  pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has no content\", function () {\r",
+							"  pm.expect(pm.response.text()).to.eql(\"\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}/dishes/{{update_dish_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}",
+						"dishes",
+						"{{update_dish_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un restaurante con un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The dish with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}/dishes/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}",
+						"dishes",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "localhost:3000/api/v1",
+			"type": "string"
+		}
+	]
+}

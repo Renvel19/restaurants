@@ -1,0 +1,405 @@
+{
+	"info": {
+		"_postman_id": "80b5f28d-d1c0-4a00-961b-8811b6da16a2",
+		"name": "Restaurantes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43595496"
+	},
+	"item": [
+		{
+			"name": "Crear restaurante válido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()\r",
+							"pm.globals.set(\"id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"   pm.response.to.have.status(201);\r",
+							"});\r",
+							"const response = pm.response.json();\r",
+							"let restaurant_id = response.id;\r",
+							"\r",
+							"pm.globals.set(\"restaurant_id\", restaurant_id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Buffalo Wings\",\r\n    \"address\": \"Calle 63 # 21 - 12\", \r\n    \"web\": \"https://www.bwcolombia.co/\", \r\n    \"cuisine\": \"Internacional\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/restaurants",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear un restaurante inválido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()\r",
+							"pm.globals.set(\"id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 400\", function () {\r",
+							"   pm.response.to.have.status(400);\r",
+							"});\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message.length).to.be.greaterThan(0);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"address\": \"Calle 63 # 21 - 12\", \r\n    \"web\": \"https://crepesywaffles.com/\", \r\n    \"cuisine\": \"Internacional\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/restaurants",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los restaurantes.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Number of restaurants > 0', function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un restaurante por ID.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un restaurante por un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The restaurant with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar un restaurante.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();\r",
+							"pm.globals.set(\"restaurant_id\", data.id);\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Buffalo Wings Colombia\",\r\n    \"address\": \"Calle 63 # 21 - 12\", \r\n    \"web\": \"https://www.bwcolombia.co/\", \r\n    \"cuisine\": \"Internacional\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar un restaurante con un ID que no existe.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The restaurant with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Buffalo Wings Colombia\",\r\n    \"address\": \"Calle 63 # 21 - 12\", \r\n    \"web\": \"https://www.bwcolombia.co/\", \r\n    \"cuisine\": \"Internacional\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/restaurants/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un restaurante con un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"  var data = pm.response.json();\r",
+							"  pm.expect(data.message).to.eql(\"The restaurant with the given id was not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un restaurante por su ID.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"  pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has no content\", function () {\r",
+							"  pm.expect(pm.response.text()).to.eql(\"\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/restaurants/{{restaurant_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"restaurants",
+						"{{restaurant_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "localhost:3000/api/v1",
+			"type": "string"
+		}
+	]
+}

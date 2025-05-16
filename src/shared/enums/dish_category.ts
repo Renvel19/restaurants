@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 export enum DishCategory {
-  STARTER = 'entrada',
+  STARTER = 'Entrada',
   MAIN = 'Plato fuerte',
   DESSERT = 'Postre',
   DRINK = 'Bebida',
