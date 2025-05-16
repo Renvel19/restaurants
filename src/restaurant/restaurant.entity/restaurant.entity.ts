@@ -1,7 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { PlateEntity } from '../../plate/plate.entity/plate.entity';
 import { CuisineType } from '../../shared/enums/cuisine_type';
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class RestaurantEntity {
@@ -25,5 +31,6 @@ export class RestaurantEntity {
   cuisine: CuisineType;
 
   @ManyToMany(() => PlateEntity, (plate) => plate.restaurants)
+  @JoinTable()
   plates: PlateEntity[];
 }

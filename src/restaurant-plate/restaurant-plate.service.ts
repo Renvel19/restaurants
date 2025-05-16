@@ -141,18 +141,19 @@ export class RestaurantPlateService {
     await this.restaurantRepository.save(restaurant);
   }
 
-  async updateDishesFromRestaurant(restaurantId: string, platesID: string[]) {
-    const plates: PlateEntity[] = [];
-    for (const plateId of platesID) {
+  async updateDishesFromRestaurant(
+    restaurantId: string,
+    plates: PlateEntity[],
+  ) {
+    for (const p of plates) {
       const plate: PlateEntity | null = await this.plateRepository.findOne({
-        where: { id: plateId },
+        where: { id: p.id },
       });
       if (!plate)
         throw new BusinessLogicException(
           'The plate with the given id was not found',
           BusinessError.NOT_FOUND,
         );
-      plates.push(plate);
     }
 
     const restaurant: RestaurantEntity | null =

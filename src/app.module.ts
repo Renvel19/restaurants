@@ -21,7 +21,7 @@ import { RestaurantPlateModule } from './restaurant-plate/restaurant-plate.modul
       password: '1q2w3e4r',
       database: 'restaurant',
       entities: [RestaurantEntity, PlateEntity],
-      dropSchema: true,
+      dropSchema: false,
       synchronize: true,
     }),
     RestaurantPlateModule,
